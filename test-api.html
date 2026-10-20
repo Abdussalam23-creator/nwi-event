@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uji Koneksi API</title>
+<style>body{font-family:system-ui,sans-serif;max-width:760px;margin:20px auto;padding:0 14px;color:#1f2937}
+button{padding:9px 14px;margin:4px 6px 4px 0;border:0;border-radius:8px;background:#3b5bdb;color:#fff;cursor:pointer;font:inherit}
+input{padding:8px;border:1px solid #d1d5db;border-radius:8px;margin:2px 4px 2px 0}pre{background:#111827;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto;white-space:pre-wrap}
+.ok{color:#16a34a;font-weight:600}.bad{color:#dc2626;font-weight:600}</style></head><body>
+<h2>Uji Koneksi Frontend ↔ Backend</h2>
+<p>Isi <code>assets/js/config.js</code> terlebih dahulu. Jalankan tes 1 → 2 → 3 berurutan.</p>
+<p><button id="t1">1. Ping server</button><button id="t2">2. Event tidak ada (harus NOT_FOUND)</button></p>
+<p><input id="u" placeholder="username"><input id="p" type="password" placeholder="password"><button id="t3">3. Login</button><button id="t4">4. Cek sesi (auth.me)</button><button id="t5">5. Logout</button></p>
+<div id="st"></div><pre id="out">Hasil akan tampil di sini.</pre>
+<script src="assets/js/config.js"></script><script src="assets/js/api.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+async function run(label,fn){const t0=performance.now();let ok=true,r;try{r=await fn();}catch(e){ok=false;r=e;}
+ const ms=Math.round(performance.now()-t0);$('#st').innerHTML=label+': <span class="'+(ok?'ok':'bad')+'">'+(ok?'respons terbaca':'galat')+'</span> ('+ms+' ms)';
+ if(r&&r.token){r=Object.assign({},r,{token:r.token.slice(0,8)+'…(disembunyikan)'});}$('#out').textContent=JSON.stringify(r,null,2);}
+$('#t1').onclick=()=>run('Ping',()=>API.call('system.ping',{},{noAuth:true}));
+$('#t2').onclick=()=>run('Event tidak ada',()=>API.call('public.event',{event_id:'EVT-TIDAKADA'},{noAuth:true}));
+$('#t3').onclick=()=>run('Login',async()=>{const r=await API.call('auth.login',{username:$('#u').value,password:$('#p').value},{noAuth:true});API.setToken(r.token);return r;});
+$('#t4').onclick=()=>run('Cek sesi',()=>API.call('auth.me'));
+$('#t5').onclick=()=>run('Logout',async()=>{const r=await API.call('auth.logout');API.setToken('');return r;});
+</script></body></html>
